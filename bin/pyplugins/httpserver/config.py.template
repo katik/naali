@@ -1,0 +1,2 @@
+IMGURLBASE = "http://www.kadonnutkaupunki.net/tundra/"
+IMGDIR = "/var/www/tundra/"
