@@ -84,6 +84,7 @@ namespace PythonScript
         //a setter for float3 objects: cannot assign back to function call
         void set(float3* self, float x, float y, float z);
         //setters for Quat
+        void set(Quat* self, float x, float y, float z, float w) const;
         void SetFromAxisAngle(Quat* self, const float3 &rotationAxis, const float rotationAngleRadians);
         Quat FromEulerZYX(Quat* self, float z, float y, float x) const;
      };

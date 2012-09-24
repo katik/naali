@@ -165,6 +165,11 @@ namespace PythonScript
     //Quats
     int q_id = qRegisterMetaType<Quat>("Quat");
 
+    void TundraDecorator::set(Quat* self, float x, float y, float z, float w) const
+    {
+        self->Set(x, y, z, w);
+    }
+
     Quat TundraDecorator::FromEulerZYX(Quat* self, float z, float y, float x) const
     {
         return self->FromEulerZYX(z, y ,x);
