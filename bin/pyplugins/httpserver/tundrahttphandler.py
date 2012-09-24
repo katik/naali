@@ -1,7 +1,7 @@
 import sys
 import asyncore
 
-sys.path.append('./pyplugins/frameserver') #omg
+sys.path.append('./pyplugins/httpserver') #omg
 import asynchttp
 
 import tundra
