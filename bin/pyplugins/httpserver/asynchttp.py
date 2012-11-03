@@ -253,6 +253,8 @@ class MyRequestHandler(RequestHandler):
         encoding = sys.getfilesystemencoding()
         self.send_header("Content-type", "text/html; charset=%s" % encoding)
         self.send_header("Content-Length", str(length))
+        #FIXME rauli mod
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         return f
 
