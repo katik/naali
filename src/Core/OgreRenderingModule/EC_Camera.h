@@ -150,6 +150,8 @@ public slots:
         @param renderUi If the image should have the user interface included.
         @return The render result image, null QImage if operation fails. */
     QImage ToQImage(bool renderUi = true);
+
+    QString GetImageFromScene(QSize size, QString extension="JPEG");
    
     /// Render current view to a Ogre::Image. Returns null Ogre::Image if operation fails.
     /** Tundra rendering viewport size is used as the image size.

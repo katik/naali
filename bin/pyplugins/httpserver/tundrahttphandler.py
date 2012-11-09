@@ -73,6 +73,15 @@ class TundraRequestHandler(asynchttp.MyRequestHandler):
 
         elif cmd == 'client':
             client(f)
+
+        elif cmd == 'panorama':
+            panorama(f)
+
+        elif cmd == "three.min.js":
+            f.write(open("../../three.js/build/three.min.js").read())
+
+        elif cmd == "Detector.js":
+            f.write(open("../../three.js/examples/js/Detector.js").read())
             
 def setSize(size):    
     #Set window size to 512x512 to get images that fit for a cube
@@ -81,7 +90,7 @@ def setSize(size):
 def testpage(f):
     #setsize here
     #setSize(256)
-    baseurl = take_and_publish_imgs()
+    baseurl = take_and_publish_imgs(512)
 
     f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
     f.write("<html>\n<title>Hello from %s</title>\n" % "Tundra")
@@ -100,7 +109,8 @@ def cubeimg(f, args):
     print "New cam pos:", posX, posY, posZ
     camp.SetPosition(posX, posY, posZ)
 
-    imgurl = take_and_publish_imgs()
+    size = int(args['res'][0])
+    imgurl = take_and_publish_imgs(size)
     f.write(imgurl)
 
 def take_and_publish_img():
@@ -136,7 +146,11 @@ def client(f):
     clienthtml = open("../../worldwebview/worldwebview.html")
     f.write(clienthtml.read())
 
-def take_and_publish_imgs():
+def panorama(f):
+    panohtml = open("../../worldwebview/worldpanoramaview.html")
+    f.write(panohtml.read())
+
+def take_and_publish_imgs(size):
     now = str(time.time())
     picpath = os.path.join(config.IMGDIR, now)
 
@@ -149,7 +163,7 @@ def take_and_publish_imgs():
         quat = camp.Orientation()
         quat.set(d[0], d[1], d[2], d[3])
         camp.SetOrientation(quat)
-        shotpath = camera.SaveScreenshot()
+        shotpath = camera.GetImageFromScene(PythonQt.Qt.QSize(size, size), "JPEG")
         shutil.move(shotpath, os.path.join(picpath, name))
         
     camp.SetOrientation(origOrientation)

@@ -549,6 +549,77 @@ void EC_Camera::SetNearClipDistance(float distance)
     camera_->setNearClipDistance(distance);
 }
 
+QString EC_Camera::GetImageFromScene(QSize size, QString extension)
+{
+    if (!ViewEnabled() || !framework->Ui()->MainWindow())
+    {
+      LogError("EC_Camera::GetImgeFromScene() Cannot take screenshot in headless mode!");
+      return "";
+    }
+    OgreWorldPtr world = world_.lock();
+    if (!world.get() || !world.get()->Renderer())
+    {
+        LogError("EC_Camera::GetImageFromScene() OgreWorld/Renderer null, cannot proceed!");
+        return "";
+    }
+    if (!GetCamera())
+    {
+        LogError("EC_Camera::GetImageFromScene Ogre::Camera not prepared yet, cannot proceed!");
+        return "";
+    }
+
+    if (!UpdateRenderTexture(size, false))
+        return "";
+
+    Ogre::TexturePtr texture = Ogre::TextureManager::getSingleton().getByName(renderTextureName_);
+    if (texture.isNull())
+        return "";
+
+    QImage img = TextureAsset::ToQImage(texture.get());
+  
+    // Check that app dir has screenshots folder
+    QDir appdataDir(QDir::fromNativeSeparators(Application::UserDataDirectory()));
+    if (!appdataDir.cd("screenshots"))
+    {
+        appdataDir.mkdir("screenshots");
+        appdataDir.cd("screenshots");
+    }
+
+    // Note you cant use ":" to separate the hours, mins and secs as its not valid as a filename char!
+    QString filename = "Tundra-" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss");
+    QString ext;
+    if (extension == "JPEG")
+      ext = ".jpeg";
+    else if (extension == "PNG")
+      ext = ".png";
+    else
+      return "";
+
+    // Check if we are creating multiple screenshots during the same second.
+    if (appdataDir.exists(filename + ext))
+    {
+        int runningID = 1;
+        QString filenameWithId = filename + "_" + QString::number(runningID);        
+        while (appdataDir.exists(filenameWithId + ext))
+        {
+            runningID += 1;
+            filenameWithId = filename + "_" + QString::number(runningID);
+
+            // Sanity safe guard. I'd hope no one is trying to take >10000 screenshots in one second.
+            if (runningID >= 10000)
+                return "";
+        }
+
+        filename = filenameWithId;
+    }
+
+    QString absFilePath = appdataDir.absoluteFilePath(filename + ext);
+    if (img.save(absFilePath, extension.toStdString().c_str()))
+        return absFilePath;
+    else
+        return "";
+}
+
 QString EC_Camera::SaveScreenshot(bool renderUi)
 {
     QImage img = ToQImage(renderUi);
