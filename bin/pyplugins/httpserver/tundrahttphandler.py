@@ -77,19 +77,11 @@ class TundraRequestHandler(asynchttp.MyRequestHandler):
         elif cmd == 'panorama':
             panorama(f)
 
-        elif cmd == "three.min.js":
-            f.write(open("../../three.js/build/three.min.js").read())
-
-        elif cmd == "Detector.js":
-            f.write(open("../../three.js/examples/js/Detector.js").read())
+        elif cmd == 'preview':
+            preview(f, args)
             
-def setSize(size):    
-    #Set window size to 512x512 to get images that fit for a cube
-    tundra.Ui().MainWindow().size = PythonQt.Qt.QSize(size, size)
 
 def testpage(f):
-    #setsize here
-    #setSize(256)
     baseurl = take_and_publish_imgs(512)
 
     f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
@@ -101,7 +93,20 @@ def testpage(f):
     f.write("\n</body></html>")
 
 
+def preview(f, args):
+    index = 0
+    while True:
+        pointname = "p" + str(index)
+        if pointname not in args:
+            break
+        point = args[pointname][0]
+        index += 1
+    
+        take_and_publish_imgs(64, point)
+
+
 def cubeimg(f, args):
+    now = time.time()
     camp = cament.placeable
 
     posX, posY, posZ = [float(args[argname][0]) for argname in ['posX', 'posY', 'posZ']]
@@ -112,6 +117,8 @@ def cubeimg(f, args):
     size = int(args['res'][0])
     imgurl = take_and_publish_imgs(size)
     f.write(imgurl)
+    print "Taking images took", time.time() - now, "seconds."
+
 
 def take_and_publish_img():
     shotpath = camera.SaveScreenshot(False)
@@ -150,9 +157,13 @@ def panorama(f):
     panohtml = open("../../worldwebview/worldpanoramaview.html")
     f.write(panohtml.read())
 
-def take_and_publish_imgs(size):
+def take_and_publish_imgs(size, path=None):
     now = str(time.time())
-    picpath = os.path.join(config.IMGDIR, now)
+
+    if path is not None:
+        picpath = os.path.join(config.IMGDIR, path)
+    else:
+        picpath = os.path.join(config.IMGDIR, now)
 
     os.mkdir(picpath)
     
@@ -190,5 +201,5 @@ def update(deltatime):
 assert frame.connect("Updated(float)", update)
 server = asynchttp.Server('', 8886, TundraRequestHandler)
 
-setSize(512)
+
 
