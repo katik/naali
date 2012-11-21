@@ -95,14 +95,22 @@ def testpage(f):
 
 def preview(f, args):
     index = 0
+    camp = cament.placeable
     while True:
         pointname = "p" + str(index)
         if pointname not in args:
             break
         point = args[pointname][0]
-        index += 1
-    
+
+        posX, posY, posZ = [float(x) for x in point.split(',')] 
+        print "New cam pos: %s" % ([posX, posY, posZ],)
+
+        camp.SetPosition(posX, posY, posZ)
+
+        print 'getting preview for point %s' % point
         take_and_publish_imgs(64, point)
+        index += 1
+
 
 
 def cubeimg(f, args):
@@ -164,8 +172,9 @@ def take_and_publish_imgs(size, path=None):
         picpath = os.path.join(config.IMGDIR, path)
     else:
         picpath = os.path.join(config.IMGDIR, now)
-
-    os.mkdir(picpath)
+        
+    if not os.path.exists(picpath):
+        os.mkdir(picpath)
     
     camp = cament.placeable
     origOrientation = camp.Orientation()
